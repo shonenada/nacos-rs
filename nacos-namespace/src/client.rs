@@ -29,15 +29,22 @@ impl NacosNamespace {
         }
     }
 
-    fn make_uri(&self) -> String {
+    fn make_url(&self, sp: &str) -> String {
+        let subpath;
+        if !sp.starts_with("/") {
+            subpath = format!("/{}", sp);
+        } else {
+            subpath = sp.to_string();
+        }
+
         format!(
-            "{}://{}:{}{}",
-            self.scheme, self.host, self.port, self.context_path
+            "{}://{}:{}{}{}",
+            self.scheme, self.host, self.port, self.context_path, subpath
         )
     }
 
     pub async fn list_namespaces(&self) -> Result<Vec<Namespace>> {
-        let url = format!("{}/v1/console/namespaces", self.make_uri());
+        let url = self.make_url("/v1/console/namespaces");
         let resp = reqwest::get(&url).await?;
         let status = resp.status();
         match status {
@@ -48,7 +55,7 @@ impl NacosNamespace {
             _ => {
                 let body = resp.text().await?;
                 Err(anyhow!(
-                    "Failed to request /{}/v1/console/namespaces, status code is {}, body: {}",
+                    "Failed to request {}, status code is {}, body: {}",
                     self.context_path,
                     status,
                     body
@@ -57,13 +64,8 @@ impl NacosNamespace {
         }
     }
 
-    pub async fn create_namespace(
-        &self,
-        ns_id: String,
-        name: String,
-        description: String,
-    ) -> Result<()> {
-        let url = format!("{}/v1/console/namespaces", self.make_uri());
+    pub async fn create_namespace(&self, ns_id: &str, name: &str, description: &str) -> Result<()> {
+        let url = self.make_url("/v1/console/namespaces");
         let client = reqwest::Client::new();
         let params = [
             ("customNamespaceId", ns_id),
@@ -79,8 +81,8 @@ impl NacosNamespace {
                     Ok(())
                 } else {
                     Err(anyhow!(
-                        "Failed to request {}/v1/console/namespaces, status code is {}, body: {}",
-                        self.context_path,
+                        "Failed to request {}, status code is {}, body: {}",
+                        url,
                         status,
                         body
                     ))
@@ -89,8 +91,81 @@ impl NacosNamespace {
             _ => {
                 let body = resp.text().await?;
                 Err(anyhow!(
-                    "Failed to request /{}/v1/console/namespaces, status code is {}, body: {}",
-                    self.context_path,
+                    "Failed to request {}, status code is {}, body: {}",
+                    url,
+                    status,
+                    body
+                ))
+            }
+        }
+    }
+
+    pub async fn update_namespace(
+        &self,
+        namespace_id: &str,
+        name: &str,
+        description: &str,
+    ) -> Result<()> {
+        let url = self.make_url("/v1/console/namespaces");
+        let client = reqwest::Client::new();
+        let params = [
+            ("namespace", namespace_id),
+            ("namespaceShowName", name),
+            ("namespaceDesc", description),
+        ];
+        let resp = client.put(&url).form(&params).send().await?;
+        let status = resp.status();
+        match status {
+            StatusCode::OK => {
+                let body: String = resp.text().await?;
+                if body == "true" {
+                    Ok(())
+                } else {
+                    Err(anyhow!(
+                        "Failed to request {}, status code is {}, body: {}",
+                        url,
+                        status,
+                        body
+                    ))
+                }
+            }
+            _ => {
+                let body = resp.text().await?;
+                Err(anyhow!(
+                    "Failed to request {}, status code is {}, body: {}",
+                    url,
+                    status,
+                    body
+                ))
+            }
+        }
+    }
+
+    pub async fn delete_namespace(&self, namespace_id: &str) -> Result<()> {
+        let url = self.make_url("/v1/console/namespaces");
+        let client = reqwest::Client::new();
+        let params = [("namespaceId", namespace_id)];
+        let resp = client.delete(&url).form(&params).send().await?;
+        let status = resp.status();
+        match status {
+            StatusCode::OK => {
+                let body: String = resp.text().await?;
+                if body == "true" {
+                    Ok(())
+                } else {
+                    Err(anyhow!(
+                        "Failed to request {}, status code is {}, body: {}",
+                        url,
+                        status,
+                        body
+                    ))
+                }
+            }
+            _ => {
+                let body = resp.text().await?;
+                Err(anyhow!(
+                    "Failed to request {}, status code is {}, body: {}",
+                    url,
                     status,
                     body
                 ))
