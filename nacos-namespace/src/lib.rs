@@ -1,2 +1,3 @@
+mod client;
 mod structs;
-pub use structs::NacosNamespace;
+pub use client::NacosNamespace;
