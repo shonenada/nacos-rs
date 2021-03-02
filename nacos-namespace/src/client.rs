@@ -1,5 +1,5 @@
 use anyhow::Result;
-use hyper::{body, Client};
+use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
 
 use crate::structs::Namespace;
@@ -8,7 +8,7 @@ use crate::structs::Namespace;
 struct CommonResponse<T> {
     code: u16,
     message: Option<String>,
-    data: Vec<T>,
+    data: T,
 }
 
 #[derive(Clone, Debug)]
@@ -37,14 +37,64 @@ impl NacosNamespace {
     }
 
     pub async fn list_namespaces(&self) -> Result<Vec<Namespace>> {
-        let client = Client::new();
-        let base_url = self.make_uri();
-        let url = format!("{}/v1/console/namespaces", base_url);
-        let uri = url.parse()?;
-        let resp = client.get(uri).await?;
-        let body_bytes = body::to_bytes(resp.into_body()).await?;
-        let body = String::from_utf8(body_bytes.to_vec()).expect("response was not valid utf-8");
-        let response: CommonResponse<Namespace> = serde_json::from_str(&body)?;
-        Ok(response.data)
+        let url = format!("{}/v1/console/namespaces", self.make_uri());
+        let resp = reqwest::get(&url).await?;
+        let status = resp.status();
+        match status {
+            StatusCode::OK => {
+                let body: CommonResponse<Vec<Namespace>> = resp.json().await?;
+                Ok(body.data)
+            }
+            _ => {
+                let body = resp.text().await?;
+                Err(anyhow!(
+                    "Failed to request /{}/v1/console/namespaces, status code is {}, body: {}",
+                    self.context_path,
+                    status,
+                    body
+                ))
+            }
+        }
+    }
+
+    pub async fn create_namespace(
+        &self,
+        ns_id: String,
+        name: String,
+        description: String,
+    ) -> Result<()> {
+        let url = format!("{}/v1/console/namespaces", self.make_uri());
+        let client = reqwest::Client::new();
+        let params = [
+            ("customNamespaceId", ns_id),
+            ("namespaceName", name),
+            ("namespaceDesc", description),
+        ];
+        let resp = client.post(&url).form(&params).send().await?;
+        let status = resp.status();
+        match status {
+            StatusCode::OK => {
+                let body: String = resp.text().await?;
+                if body == "true" {
+                    Ok(())
+                } else {
+                    Err(anyhow!(
+                        "Failed to request {}/v1/console/namespaces, status code is {}, body: {}",
+                        self.context_path,
+                        status,
+                        body
+                    ))
+                }
+            }
+            _ => {
+                let body = resp.text().await?;
+                Err(anyhow!(
+                    "Failed to request /{}/v1/console/namespaces, status code is {}, body: {}",
+                    self.context_path,
+                    status,
+                    body
+                ))
+            }
+        }
     }
 }
