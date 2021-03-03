@@ -67,4 +67,47 @@ impl NacosConfig {
             }
         }
     }
+
+    pub async fn publish_config(&self, data_id: &str, group: &str, content: &str, tenant: &str, config_type: &str) -> Result<()> {
+        let url = self.make_url("/v1/cs/configs");
+        let client = reqwest::Client::new();
+        let query = [
+            ("dataId", data_id),
+            ("group", group),
+            ("tenant", tenant),
+            ("content", content),
+            ("type", config_type),
+        ];
+        let resp = client.post(&url).form(&query).send().await?;
+        let status = resp.status();
+        match status {
+            StatusCode::OK => {
+                let body: String  = resp.text().await?;
+                if body == "true" {
+                    Ok(())
+                } else {
+                    Err(anyhow!(
+                        "Failed to request {}, status code is {}, body: {}",
+                        url,
+                        status,
+                        body
+                    ))
+                }
+            },
+            _ => {
+                let body = resp.text().await?;
+                Err(anyhow!(
+                    "Failed to request {}, status code is {}, body: {}",
+                    url,
+                    status,
+                    body
+                ))
+            }
+        }
+    }
+
+    pub async fn listen_config(&self) {
+        // TODO
+    }
+
 }
