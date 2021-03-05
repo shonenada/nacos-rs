@@ -19,7 +19,7 @@ pub struct NacosConfig {
 
 impl NacosConfig {
     pub fn new(scheme: &str, host: &str, port: u16, context_path: &str) -> Self {
-        Self{
+        Self {
             scheme: scheme.to_string(),
             host: host.to_string(),
             port,
@@ -44,18 +44,14 @@ impl NacosConfig {
     pub async fn get_config(&self, data_id: &str, group: &str, tenant: &str) -> Result<String> {
         let url = self.make_url("/v1/cs/configs");
         let client = reqwest::Client::new();
-        let query = [
-            ("dataId", data_id),
-            ("group", group),
-            ("tenant", tenant),
-        ];
+        let query = [("dataId", data_id), ("group", group), ("tenant", tenant)];
         let resp = client.get(&url).query(&query).send().await?;
         let status = resp.status();
         match status {
             StatusCode::OK => {
-                let result: String  = resp.text().await?;
+                let result: String = resp.text().await?;
                 Ok(result)
-            },
+            }
             _ => {
                 let body = resp.text().await?;
                 Err(anyhow!(
@@ -68,7 +64,14 @@ impl NacosConfig {
         }
     }
 
-    pub async fn publish_config(&self, data_id: &str, group: &str, content: &str, tenant: &str, config_type: &str) -> Result<()> {
+    pub async fn publish_config(
+        &self,
+        data_id: &str,
+        group: &str,
+        content: &str,
+        tenant: &str,
+        config_type: &str,
+    ) -> Result<()> {
         let url = self.make_url("/v1/cs/configs");
         let client = reqwest::Client::new();
         let query = [
@@ -82,7 +85,7 @@ impl NacosConfig {
         let status = resp.status();
         match status {
             StatusCode::OK => {
-                let body: String  = resp.text().await?;
+                let body: String = resp.text().await?;
                 if body == "true" {
                     Ok(())
                 } else {
@@ -93,7 +96,7 @@ impl NacosConfig {
                         body
                     ))
                 }
-            },
+            }
             _ => {
                 let body = resp.text().await?;
                 Err(anyhow!(
@@ -109,16 +112,12 @@ impl NacosConfig {
     pub async fn delete_config(&self, data_id: &str, group: &str, tenant: &str) -> Result<()> {
         let url = self.make_url("/v1/cs/configs");
         let client = reqwest::Client::new();
-        let query = [
-            ("dataId", data_id),
-            ("group", group),
-            ("tenant", tenant),
-        ];
+        let query = [("dataId", data_id), ("group", group), ("tenant", tenant)];
         let resp = client.delete(&url).form(&query).send().await?;
         let status = resp.status();
         match status {
             StatusCode::OK => {
-                let body: String  = resp.text().await?;
+                let body: String = resp.text().await?;
                 if body == "true" {
                     Ok(())
                 } else {
@@ -129,7 +128,7 @@ impl NacosConfig {
                         body
                     ))
                 }
-            },
+            }
             _ => {
                 let body = resp.text().await?;
                 Err(anyhow!(
@@ -140,11 +139,9 @@ impl NacosConfig {
                 ))
             }
         }
-
     }
 
     pub async fn listen_config(&self) {
         // TODO
     }
-
 }
