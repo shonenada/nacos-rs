@@ -185,5 +185,5 @@ pub struct UpdateInstanceHealthStatus {
     cluster_name: String,
     ip: String,
     port: u16,
-    healthy: bool,,
+    healthy: bool,
 }

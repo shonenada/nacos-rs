@@ -15,7 +15,7 @@ async fn main() -> anyhow::Result<()> {
         .healthy_only(false)
         .build()
         .unwrap();
-    let result = client.query_instance(&query_args).await?;
+    let result = client.query_instances(&query_args).await?;
     println!("result: {}", result);
 
     Ok(())
