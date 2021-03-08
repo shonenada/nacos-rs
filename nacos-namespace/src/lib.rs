@@ -2,5 +2,6 @@
 extern crate anyhow;
 
 mod client;
-mod structs;
+pub mod structs;
+
 pub use client::NacosNamespace;
