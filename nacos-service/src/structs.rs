@@ -22,7 +22,8 @@ pub struct RegisterInstance {
     ephemeral: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Builder, Debug, Serialize, Deserialize)]
+#[builder(setter(into))]
 pub struct DeregistryInstance {
     #[serde(rename = "serviceName")]
     service_name: String,
@@ -37,7 +38,8 @@ pub struct DeregistryInstance {
     namespace_id: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Builder, Debug, Serialize, Deserialize)]
+#[builder(setter(into))]
 pub struct ModifyInstance {
     #[serde(rename = "serviceName")]
     service_name: String,
@@ -69,7 +71,8 @@ pub struct QueryInstance {
     healthy_only: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Builder, Debug, Serialize, Deserialize)]
+#[builder(setter(into))]
 pub struct QueryInstanceDetail {
     #[serde(rename = "namespaceId")]
     namespace_id: String,
@@ -83,7 +86,8 @@ pub struct QueryInstanceDetail {
     cluster: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Builder, Debug, Serialize, Deserialize)]
+#[builder(setter(into))]
 pub struct SendInstanceBeat {
     #[serde(rename = "namespaceId")]
     namespace_id: String,
@@ -94,7 +98,8 @@ pub struct SendInstanceBeat {
     beat: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Builder, Debug, Serialize, Deserialize)]
+#[builder(setter(into))]
 pub struct CreateService {
     #[serde(rename = "serviceName")]
     service_name: String,
@@ -109,7 +114,8 @@ pub struct CreateService {
     selector: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Builder, Debug, Serialize, Deserialize)]
+#[builder(setter(into))]
 pub struct DeleteService {
     #[serde(rename = "serviceName")]
     service_name: String,
@@ -119,7 +125,8 @@ pub struct DeleteService {
     namespace_id: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Builder, Debug, Serialize, Deserialize)]
+#[builder(setter(into))]
 pub struct UpdateService {
     #[serde(rename = "serviceName")]
     service_name: String,
@@ -133,7 +140,8 @@ pub struct UpdateService {
     selector: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Builder, Debug, Serialize, Deserialize)]
+#[builder(setter(into))]
 pub struct QueryService {
     #[serde(rename = "serviceName")]
     service_name: String,
@@ -141,4 +149,41 @@ pub struct QueryService {
     group_name: String,
     #[serde(rename = "namespaceId")]
     namespace_id: String,
+}
+
+#[derive(Builder, Debug, Serialize, Deserialize)]
+#[builder(setter(into))]
+pub struct QueryServiceList {
+    #[serde(rename = "pageNo")]
+    page_no: u32,
+    #[serde(rename = "pageSize")]
+    page_size: u32,
+    #[serde(rename = "groupName")]
+    group_name: String,
+    #[serde(rename = "namespaceId")]
+    namespace_id: String,
+}
+
+#[derive(Builder, Debug, Serialize, Deserialize)]
+#[builder(setter(into))]
+pub struct UpdateSystemSwitch {
+    entry: String,
+    value: String,
+    debug: bool,
+}
+
+#[derive(Builder, Debug, Serialize, Deserialize)]
+#[builder(setter(into))]
+pub struct UpdateInstanceHealthStatus {
+    #[serde(rename = "serviceName")]
+    service_name: String,
+    #[serde(rename = "groupName")]
+    group_name: String,
+    #[serde(rename = "namespaceId")]
+    namespace_id: String,
+    #[serde(rename = "clusterName")]
+    cluster_name: String,
+    ip: String,
+    port: u16,
+    healthy: bool,,
 }
