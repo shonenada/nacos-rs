@@ -1,8 +1,10 @@
 use nacos_namespace::NacosNamespace;
+use nacos_utils::NacosConfig;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    let client = NacosNamespace::new("http", "localhost", 8848, "/nacos");
+    let config = NacosConfig::new("http", "localhost", 8848, "/nacos");
+    let client = NacosNamespace::new(&config.into_client());
     let namespace_id = "namespace_id";
     client.delete_namespace(namespace_id).await?;
     println!("Deleted");

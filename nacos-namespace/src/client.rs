@@ -1,67 +1,30 @@
 use anyhow::Result;
 use reqwest::StatusCode;
-use serde::{Deserialize, Serialize};
+
+use nacos_utils::{CommonResponse, NacosClient};
 
 use crate::structs::Namespace;
 
-#[derive(Debug, Serialize, Deserialize)]
-struct CommonResponse<T> {
-    code: u16,
-    message: Option<String>,
-    data: T,
-}
-
 #[derive(Clone, Debug)]
 pub struct NacosNamespace {
-    scheme: String,
-    host: String,
-    port: u16,
-    context_path: String,
+    client: NacosClient,
 }
 
 impl NacosNamespace {
-    pub fn new(scheme: &str, host: &str, port: u16, context_path: &str) -> Self {
+    pub fn new(client: &NacosClient) -> Self {
         Self {
-            scheme: scheme.to_string(),
-            host: host.to_string(),
-            port,
-            context_path: context_path.to_string(),
+            client: client.clone(),
         }
     }
 
     fn make_url(&self, sp: &str) -> String {
-        let subpath;
-        if !sp.starts_with("/") {
-            subpath = format!("/{}", sp);
-        } else {
-            subpath = sp.to_string();
-        }
-
-        format!(
-            "{}://{}:{}{}{}",
-            self.scheme, self.host, self.port, self.context_path, subpath
-        )
+        self.client.make_url(sp)
     }
 
     pub async fn list_namespaces(&self) -> Result<Vec<Namespace>> {
-        let url = self.make_url("/v1/console/namespaces");
-        let resp = reqwest::get(&url).await?;
-        let status = resp.status();
-        match status {
-            StatusCode::OK => {
-                let body: CommonResponse<Vec<Namespace>> = resp.json().await?;
-                Ok(body.data)
-            }
-            _ => {
-                let body = resp.text().await?;
-                Err(anyhow!(
-                    "Failed to request {}, status code is {}, body: {}",
-                    self.context_path,
-                    status,
-                    body
-                ))
-            }
-        }
+        let resp: CommonResponse<Vec<Namespace>> =
+            self.client.get_json("/v1/console/namespaces").await?;
+        Ok(resp.get_data())
     }
 
     pub async fn create_namespace(&self, ns_id: &str, name: &str, description: &str) -> Result<()> {
