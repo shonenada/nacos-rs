@@ -7,4 +7,4 @@ mod http_client;
 mod response;
 
 pub use http_client::{NacosClient, NacosConfig};
-pub use response::CommonResponse;
+pub use response::NacosResponse;

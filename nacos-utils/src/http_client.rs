@@ -1,8 +1,9 @@
 use anyhow::Result;
 use reqwest::StatusCode;
 use serde::de::DeserializeOwned;
+use serde::Serialize;
 
-use crate::CommonResponse;
+use crate::NacosResponse;
 
 #[derive(Clone, Debug)]
 pub struct NacosConfig {
@@ -54,7 +55,32 @@ impl NacosClient {
         self.config.make_url(sp)
     }
 
-    pub async fn get_json<T>(&self, sp: &str) -> Result<CommonResponse<T>>
+    pub async fn get_string<D>(&self, sp: &str, query: &D) -> Result<NacosResponse<String>>
+    where
+        D: Serialize,
+    {
+        let url = self.make_url(sp);
+        let client = reqwest::Client::new();
+        let resp = client.get(&url).query(&query).send().await?;
+        let status = resp.status();
+        match status {
+            StatusCode::OK => {
+                let result: String = resp.text().await?;
+                Ok(result)
+            }
+            _ => {
+                let body = resp.text().await?;
+                Err(anyhow!(
+                    "Failed to request {}, status code is {}, body: {}",
+                    url,
+                    status,
+                    body
+                ))
+            }
+        }
+    }
+
+    pub async fn get_json<T>(&self, sp: &str) -> Result<NacosResponse<T>>
     where
         T: DeserializeOwned,
     {
@@ -63,7 +89,7 @@ impl NacosClient {
         let status = resp.status();
         match status {
             StatusCode::OK => {
-                let body: CommonResponse<T> = resp.json().await?;
+                let body: NacosResponse<T> = resp.json().await?;
                 Ok(body)
             }
             _ => {
@@ -71,6 +97,40 @@ impl NacosClient {
                 Err(anyhow!(
                     "Failed to request {}, status code is {}, body: {}",
                     self.config.context_path,
+                    status,
+                    body
+                ))
+            }
+        }
+    }
+
+    pub async fn simple_post<D>(&self, sp: &str, params: &D) -> Result<()>
+    where
+        D: Serialize,
+    {
+        let url = self.make_url(sp);
+        let client = reqwest::Client::new();
+        let resp = client.post(&url).form(&params).send().await?;
+        let status = resp.status();
+        match status {
+            StatusCode::OK => {
+                let body: String = resp.text().await?;
+                if body == "true" {
+                    Ok(())
+                } else {
+                    Err(anyhow!(
+                        "Failed to request {}, status code is {}, body: {}",
+                        url,
+                        status,
+                        body
+                    ))
+                }
+            }
+            _ => {
+                let body = resp.text().await?;
+                Err(anyhow!(
+                    "Failed to request {}, status code is {}, body: {}",
+                    url,
                     status,
                     body
                 ))
