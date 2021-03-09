@@ -1,11 +1,13 @@
 use nacos_service::{structs::*, NacosService};
+use nacos_utils::NacosConfig;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     let service_name = "service_name".to_string();
     let namespace_id = "namespace_id".to_string();
 
-    let client = NacosService::new("http", "localhost", 8848, "/nacos");
+    let config = NacosConfig::new("http", "localhost", 8848, "/nacos");
+    let client = NacosService::new(&config.into_client());
 
     let query_args = QueryInstanceBuilder::default()
         .service_name(service_name)
