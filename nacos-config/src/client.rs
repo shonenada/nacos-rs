@@ -1,69 +1,29 @@
 use anyhow::Result;
 use reqwest::StatusCode;
-use serde::{Deserialize, Serialize};
+
+use nacos_utils::NacosClient;
 
 use crate::structs::ListenConfig;
 
-#[derive(Debug, Serialize, Deserialize)]
-struct CommonResponse<T> {
-    code: u16,
-    message: Option<String>,
-    data: T,
-}
-
 #[derive(Clone, Debug)]
-pub struct NacosConfig {
-    scheme: String,
-    host: String,
-    port: u16,
-    context_path: String,
+pub struct NacosConfigClient {
+    client: NacosClient,
 }
 
-impl NacosConfig {
-    pub fn new(scheme: &str, host: &str, port: u16, context_path: &str) -> Self {
+impl NacosConfigClient {
+    pub fn new(client: &NacosClient) -> Self {
         Self {
-            scheme: scheme.to_string(),
-            host: host.to_string(),
-            port,
-            context_path: context_path.to_string(),
+            client: client.clone(),
         }
     }
 
     fn make_url(&self, sp: &str) -> String {
-        let subpath;
-        if !sp.starts_with("/") {
-            subpath = format!("/{}", sp);
-        } else {
-            subpath = sp.to_string();
-        }
-
-        format!(
-            "{}://{}:{}{}{}",
-            self.scheme, self.host, self.port, self.context_path, subpath
-        )
+        self.client.make_url(sp)
     }
 
     pub async fn get_config(&self, data_id: &str, group: &str, tenant: &str) -> Result<String> {
-        let url = self.make_url("/v1/cs/configs");
-        let client = reqwest::Client::new();
         let query = [("dataId", data_id), ("group", group), ("tenant", tenant)];
-        let resp = client.get(&url).query(&query).send().await?;
-        let status = resp.status();
-        match status {
-            StatusCode::OK => {
-                let result: String = resp.text().await?;
-                Ok(result)
-            }
-            _ => {
-                let body = resp.text().await?;
-                Err(anyhow!(
-                    "Failed to request {}, status code is {}, body: {}",
-                    url,
-                    status,
-                    body
-                ))
-            }
-        }
+        self.client.get_string("/v1/cs/configs", &query).await
     }
 
     pub async fn publish_config(
@@ -74,79 +34,26 @@ impl NacosConfig {
         tenant: &str,
         config_type: &str,
     ) -> Result<()> {
-        let url = self.make_url("/v1/cs/configs");
-        let client = reqwest::Client::new();
-        let query = [
+        let params = [
             ("dataId", data_id),
             ("group", group),
             ("tenant", tenant),
             ("content", content),
             ("type", config_type),
         ];
-        let resp = client.post(&url).form(&query).send().await?;
-        let status = resp.status();
-        match status {
-            StatusCode::OK => {
-                let body: String = resp.text().await?;
-                if body == "true" {
-                    Ok(())
-                } else {
-                    Err(anyhow!(
-                        "Failed to request {}, status code is {}, body: {}",
-                        url,
-                        status,
-                        body
-                    ))
-                }
-            }
-            _ => {
-                let body = resp.text().await?;
-                Err(anyhow!(
-                    "Failed to request {}, status code is {}, body: {}",
-                    url,
-                    status,
-                    body
-                ))
-            }
-        }
+        self.client.simple_post("/v1/cs/configs", &params).await
     }
 
     pub async fn delete_config(&self, data_id: &str, group: &str, tenant: &str) -> Result<()> {
-        let url = self.make_url("/v1/cs/configs");
-        let client = reqwest::Client::new();
-        let query = [("dataId", data_id), ("group", group), ("tenant", tenant)];
-        let resp = client.delete(&url).form(&query).send().await?;
-        let status = resp.status();
-        match status {
-            StatusCode::OK => {
-                let body: String = resp.text().await?;
-                if body == "true" {
-                    Ok(())
-                } else {
-                    Err(anyhow!(
-                        "Failed to request {}, status code is {}, body: {}",
-                        url,
-                        status,
-                        body
-                    ))
-                }
-            }
-            _ => {
-                let body = resp.text().await?;
-                Err(anyhow!(
-                    "Failed to request {}, status code is {}, body: {}",
-                    url,
-                    status,
-                    body
-                ))
-            }
-        }
+        let params = [("dataId", data_id), ("group", group), ("tenant", tenant)];
+        self.client.simple_delete("/v1/cs/configs", &params).await
     }
 
-    pub async fn listen_config(&self, args: &ListenConfig) {
+    pub async fn listen_config(&self, args: &ListenConfig) -> Result<String> {
         let url = self.make_url("/v1/cs/configs/listener");
         let client = reqwest::Client::new();
         let resp = client.post(&url).form(args).send().await?;
+        let status = resp.status();
         match status {
             StatusCode::OK => {
                 let result: String = resp.text().await?;
