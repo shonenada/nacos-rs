@@ -44,70 +44,20 @@ impl NacosNamespace {
         name: &str,
         description: &str,
     ) -> Result<()> {
-        let url = self.make_url("/v1/console/namespaces");
-        let client = reqwest::Client::new();
         let params = [
             ("namespace", namespace_id),
             ("namespaceShowName", name),
             ("namespaceDesc", description),
         ];
-        let resp = client.put(&url).form(&params).send().await?;
-        let status = resp.status();
-        match status {
-            StatusCode::OK => {
-                let body: String = resp.text().await?;
-                if body == "true" {
-                    Ok(())
-                } else {
-                    Err(anyhow!(
-                        "Failed to request {}, status code is {}, body: {}",
-                        url,
-                        status,
-                        body
-                    ))
-                }
-            }
-            _ => {
-                let body = resp.text().await?;
-                Err(anyhow!(
-                    "Failed to request {}, status code is {}, body: {}",
-                    url,
-                    status,
-                    body
-                ))
-            }
-        }
+        self.client
+            .simple_put("/v1/console/namespaces", &params)
+            .await
     }
 
     pub async fn delete_namespace(&self, namespace_id: &str) -> Result<()> {
-        let url = self.make_url("/v1/console/namespaces");
-        let client = reqwest::Client::new();
         let params = [("namespaceId", namespace_id)];
-        let resp = client.delete(&url).form(&params).send().await?;
-        let status = resp.status();
-        match status {
-            StatusCode::OK => {
-                let body: String = resp.text().await?;
-                if body == "true" {
-                    Ok(())
-                } else {
-                    Err(anyhow!(
-                        "Failed to request {}, status code is {}, body: {}",
-                        url,
-                        status,
-                        body
-                    ))
-                }
-            }
-            _ => {
-                let body = resp.text().await?;
-                Err(anyhow!(
-                    "Failed to request {}, status code is {}, body: {}",
-                    url,
-                    status,
-                    body
-                ))
-            }
-        }
+        self.client
+            .simple_delete("/v1/console/namespaces", &params)
+            .await
     }
 }
