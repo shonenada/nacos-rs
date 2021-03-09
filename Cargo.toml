@@ -3,6 +3,14 @@ name = "nacos-rs"
 version = "0.0.1-alpha"
 authors = ["shonenada <shonenada@gmail.com>"]
 edition = "2018"
+license = "MIT"
+description = "A rust client for operating nacos"
+repository = "https://github.com/shonenada/nacos-rs"
+readme = "README.md"
+homepage = "https://crates.io/crates/nacos-rs"
+categories = ["web-programming"]
+keywords = ["nacos"]
+include = ["src/**/*", "Cargo.toml", "docs/**/*", "LICENSE", "README.md"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
