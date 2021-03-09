@@ -2,6 +2,8 @@ use anyhow::Result;
 use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
 
+use crate::structs::ListenConfig;
+
 #[derive(Debug, Serialize, Deserialize)]
 struct CommonResponse<T> {
     code: u16,
@@ -141,7 +143,24 @@ impl NacosConfig {
         }
     }
 
-    pub async fn listen_config(&self) {
-        // TODO
+    pub async fn listen_config(&self, args: &ListenConfig) {
+        let url = self.make_url("/v1/cs/configs/listener");
+        let client = reqwest::Client::new();
+        let resp = client.post(&url).form(args).send().await?;
+        match status {
+            StatusCode::OK => {
+                let result: String = resp.text().await?;
+                Ok(result)
+            }
+            _ => {
+                let body = resp.text().await?;
+                Err(anyhow!(
+                    "Failed to request {}, status code is {}, body: {}",
+                    url,
+                    status,
+                    body
+                ))
+            }
+        }
     }
 }
