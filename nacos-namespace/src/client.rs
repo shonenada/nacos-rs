@@ -1,5 +1,4 @@
 use anyhow::Result;
-use reqwest::StatusCode;
 
 use nacos_utils::{NacosClient, NacosResponse};
 
@@ -15,10 +14,6 @@ impl NacosNamespace {
         Self {
             client: client.clone(),
         }
-    }
-
-    fn make_url(&self, sp: &str) -> String {
-        self.client.make_url(sp)
     }
 
     pub async fn list_namespaces(&self) -> Result<Vec<Namespace>> {
