@@ -20,4 +20,5 @@ members = [
   "nacos-core",
   "nacos-namespace",
   "nacos-service",
+  "nacos-utils",
 ]
