@@ -5,4 +5,4 @@ extern crate derive_builder;
 
 pub mod client;
 pub mod structs;
-pub use client::NacosConfig;
+pub use client::NacosConfigClient;
