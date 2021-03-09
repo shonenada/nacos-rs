@@ -115,7 +115,75 @@ impl NacosClient {
         match status {
             StatusCode::OK => {
                 let body: String = resp.text().await?;
-                if body == "true" {
+                if body == "true" || body == "ok" {
+                    Ok(())
+                } else {
+                    Err(anyhow!(
+                        "Failed to request {}, status code is {}, body: {}",
+                        url,
+                        status,
+                        body
+                    ))
+                }
+            }
+            _ => {
+                let body = resp.text().await?;
+                Err(anyhow!(
+                    "Failed to request {}, status code is {}, body: {}",
+                    url,
+                    status,
+                    body
+                ))
+            }
+        }
+    }
+
+    pub async fn simple_put<D>(&self, sp: &str, params: &D) -> Result<()>
+    where
+        D: Serialize,
+    {
+        let url = self.make_url(sp);
+        let client = reqwest::Client::new();
+        let resp = client.put(&url).form(&params).send().await?;
+        let status = resp.status();
+        match status {
+            StatusCode::OK => {
+                let body: String = resp.text().await?;
+                if body == "true" || body == "ok" {
+                    Ok(())
+                } else {
+                    Err(anyhow!(
+                        "Failed to request {}, status code is {}, body: {}",
+                        url,
+                        status,
+                        body
+                    ))
+                }
+            }
+            _ => {
+                let body = resp.text().await?;
+                Err(anyhow!(
+                    "Failed to request {}, status code is {}, body: {}",
+                    url,
+                    status,
+                    body
+                ))
+            }
+        }
+    }
+
+    pub async fn simple_delete<D>(&self, sp: &str, params: &D) -> Result<()>
+    where
+        D: Serialize,
+    {
+        let url = self.make_url(sp);
+        let client = reqwest::Client::new();
+        let resp = client.delete(&url).form(&params).send().await?;
+        let status = resp.status();
+        match status {
+            StatusCode::OK => {
+                let body: String = resp.text().await?;
+                if body == "true" || body == "ok" {
                     Ok(())
                 } else {
                     Err(anyhow!(
