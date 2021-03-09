@@ -55,7 +55,7 @@ impl NacosClient {
         self.config.make_url(sp)
     }
 
-    pub async fn get_string<D>(&self, sp: &str, query: &D) -> Result<NacosResponse<String>>
+    pub async fn get_string<D>(&self, sp: &str, query: &D) -> Result<String>
     where
         D: Serialize,
     {
