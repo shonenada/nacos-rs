@@ -1,1 +1,1 @@
-pub struct NacosClient {}
+pub struct Nacos {}
