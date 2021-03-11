@@ -14,7 +14,7 @@ pub struct NacosConfig {
 }
 
 #[derive(Clone, Debug)]
-pub struct NacosClient {
+pub struct NacosHTTPClient {
     config: NacosConfig,
 }
 
@@ -41,12 +41,12 @@ impl NacosConfig {
         )
     }
 
-    pub fn into_client(&self) -> NacosClient {
-        NacosClient::new(self.clone())
+    pub fn into_client(&self) -> NacosHTTPClient {
+        NacosHTTPClient::new(self.clone())
     }
 }
 
-impl NacosClient {
+impl NacosHTTPClient {
     pub fn new(config: NacosConfig) -> Self {
         Self { config }
     }
