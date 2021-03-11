@@ -1,17 +1,17 @@
 use anyhow::Result;
 use reqwest::StatusCode;
 
-use nacos_utils::NacosClient;
+use nacos_utils::NacosHTTPClient;
 
 use crate::structs::ListenConfig;
 
 #[derive(Clone, Debug)]
 pub struct NacosConfigClient {
-    client: NacosClient,
+    client: NacosHTTPClient,
 }
 
 impl NacosConfigClient {
-    pub fn new(client: &NacosClient) -> Self {
+    pub fn new(client: &NacosHTTPClient) -> Self {
         Self {
             client: client.clone(),
         }

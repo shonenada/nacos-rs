@@ -1,16 +1,16 @@
 use anyhow::Result;
 
-use nacos_utils::{NacosClient, NacosResponse};
+use nacos_utils::{NacosHTTPClient, NacosResponse};
 
 use crate::structs::Namespace;
 
 #[derive(Clone, Debug)]
 pub struct NacosNamespace {
-    client: NacosClient,
+    client: NacosHTTPClient,
 }
 
 impl NacosNamespace {
-    pub fn new(client: &NacosClient) -> Self {
+    pub fn new(client: &NacosHTTPClient) -> Self {
         Self {
             client: client.clone(),
         }

@@ -1,25 +1,20 @@
 use anyhow::Result;
-use reqwest::StatusCode;
 use std::collections::HashMap;
 
-use nacos_utils::NacosClient;
+use nacos_utils::NacosHTTPClient;
 
 use crate::structs::*;
 
 #[derive(Clone, Debug)]
 pub struct NacosService {
-    client: NacosClient,
+    client: NacosHTTPClient,
 }
 
 impl NacosService {
-    pub fn new(client: &NacosClient) -> Self {
+    pub fn new(client: &NacosHTTPClient) -> Self {
         Self {
             client: client.clone(),
         }
-    }
-
-    fn make_url(&self, sp: &str) -> String {
-        self.client.make_url(sp)
     }
 
     pub async fn register_instance(&self, args: &RegisterInstance) -> Result<()> {
