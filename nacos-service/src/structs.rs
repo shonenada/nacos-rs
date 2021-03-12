@@ -1,3 +1,4 @@
+use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 
 type Weight = f32;

@@ -1,4 +1,4 @@
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use reqwest::StatusCode;
 
 use nacos_utils::NacosHTTPClient;

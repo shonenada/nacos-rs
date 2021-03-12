@@ -1,3 +1,4 @@
+use anyhow::anyhow;
 use anyhow::Result;
 use reqwest::StatusCode;
 use serde::de::DeserializeOwned;

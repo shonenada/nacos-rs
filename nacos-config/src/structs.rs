@@ -1,3 +1,4 @@
+use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]

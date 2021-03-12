@@ -1,6 +1,3 @@
-#[macro_use]
-extern crate anyhow;
-
 mod nacos;
 
 pub use nacos::NacosClient;
