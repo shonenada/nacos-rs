@@ -1,1 +1,1 @@
-pub use nacos_core::Nacos;
+pub use nacos_core::NacosClient;
