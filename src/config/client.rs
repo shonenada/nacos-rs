@@ -1,9 +1,8 @@
 use anyhow::{anyhow, Result};
 use reqwest::StatusCode;
 
-use nacos_utils::NacosHTTPClient;
-
-use crate::structs::ListenConfig;
+use crate::config::structs::ListenConfig;
+use crate::http_client::NacosHTTPClient;
 
 #[derive(Clone, Debug)]
 pub struct NacosConfigClient {

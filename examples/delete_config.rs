@@ -1,7 +1,7 @@
 use std::{thread, time};
 
-use nacos_config::NacosConfigClient;
-use nacos_utils::NacosConfig;
+use nacos::NacosConfig;
+use nacos::NacosConfigClient;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -27,5 +27,12 @@ async fn main() -> anyhow::Result<()> {
 
     let result = client.get_config(data_id, group, tenant).await?;
     println!("result:\n{}", result);
+
+    client.delete_config(data_id, group, tenant).await?;
+    println!("Deleted config");
+
+    let deleted_result = client.get_config(data_id, group, tenant).await;
+    println!("result.is_err(): {}", deleted_result.is_err());
+
     Ok(())
 }

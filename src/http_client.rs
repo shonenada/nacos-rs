@@ -1,10 +1,9 @@
-use anyhow::anyhow;
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use reqwest::StatusCode;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 
-use crate::NacosResponse;
+use crate::response::NacosResponse;
 
 #[derive(Clone, Debug)]
 pub struct NacosConfig {

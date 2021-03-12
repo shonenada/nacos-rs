@@ -1,5 +1,5 @@
-use nacos_config::NacosConfigClient;
-use nacos_utils::NacosConfig;
+use nacos::NacosConfig;
+use nacos::NacosConfigClient;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {

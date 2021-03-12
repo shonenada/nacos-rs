@@ -1,5 +1,5 @@
-use nacos_service::{structs::*, NacosService};
-use nacos_utils::NacosConfig;
+use nacos::service::{structs::*, NacosService};
+use nacos::NacosConfig;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {

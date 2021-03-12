@@ -1,8 +1,8 @@
 use anyhow::Result;
 
-use nacos_utils::{NacosHTTPClient, NacosResponse};
-
-use crate::structs::Namespace;
+use crate::http_client::NacosHTTPClient;
+use crate::namespace::structs::Namespace;
+use crate::response::NacosResponse;
 
 #[derive(Clone, Debug)]
 pub struct NacosNamespace {

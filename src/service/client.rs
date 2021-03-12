@@ -1,9 +1,8 @@
 use anyhow::Result;
 use std::collections::HashMap;
 
-use nacos_utils::NacosHTTPClient;
-
-use crate::structs::*;
+use crate::http_client::NacosHTTPClient;
+use crate::service::structs::*;
 
 #[derive(Clone, Debug)]
 pub struct NacosService {
