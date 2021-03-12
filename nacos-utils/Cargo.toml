@@ -1,6 +1,6 @@
 [package]
 name = "nacos-utils"
-version = "0.1.0"
+version = "0.0.1"
 authors = ["shonenada <shonenada@gmail.com>"]
 edition = "2018"
 
